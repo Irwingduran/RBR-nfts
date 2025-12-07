@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  walletAddress String?  @unique
+  role          Role     @default(USER)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  nfts          NFT[]
+  
+  @@index([email])
+  @@index([walletAddress])
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  date        DateTime
+  location    String?
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+  maxSupply   Int?
+  claimCode   String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  nfts        NFT[]
+  
+  @@index([claimCode])
+  @@index([isActive])
+}
+
+model NFT {
+  id            String   @id @default(cuid())
+  tokenId       String   @unique
+  metadataUri   String
+  imageUrl      String
+  txHash        String?
+  claimedAt     DateTime @default(now())
+  
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  eventId       String
+  event         Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([eventId])
+  @@index([tokenId])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
