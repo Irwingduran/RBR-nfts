@@ -46,7 +46,7 @@ export async function uploadMetadataToIPFS(metadata: NFTMetadata): Promise<strin
 export async function uploadImageToIPFS(imageBuffer: Buffer, filename: string): Promise<string> {
   try {
     const formData = new FormData()
-    const blob = new Blob([imageBuffer])
+    const blob = new Blob([imageBuffer as unknown as BlobPart])
     formData.append("file", blob, filename)
 
     const response = await pinataAxios.post("/pinning/pinFileToIPFS", formData, {
